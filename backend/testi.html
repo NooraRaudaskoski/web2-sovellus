@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQLite Testisivu</title>
+</head>
+<body>
+    <h1>Testaa SQLite-tietokantaa</h1>
+
+    <h2>Lisää tieto</h2>
+    <input type="text" id="name" placeholder="Nimi">
+    <input type="text" id="description" placeholder="Kuvaus">
+    <button onclick="addItem()">Lisää</button>
+
+    <h2>Haetut tiedot</h2>
+    <button onclick="fetchItems()">Hae kaikki</button>
+    <ul id="item-list"></ul>
+
+    <script>
+        const apiUrl = 'http://localhost:3000/items';
+
+        async function addItem() {
+            const name = document.getElementById('name').value;
+            const description = document.getElementById('description').value;
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, description })
+            });
+
+            if (response.ok) {
+                alert('Lisätty!');
+                fetchItems();
+            } else {
+                alert('Virhe lisäyksessä');
+            }
+        }
+
+        async function fetchItems() {
+            const response = await fetch(apiUrl);
+            const items = await response.json();
+            
+            const list = document.getElementById('item-list');
+            list.innerHTML = '';
+
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = `${item.id}: ${item.name} - ${item.description}`;
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = "Poista";
+                deleteBtn.onclick = () => deleteItem(item.id);
+                
+                li.appendChild(deleteBtn);
+                list.appendChild(li);
+            });
+        }
+
+        async function deleteItem(id) {
+            const response = await fetch(`${apiUrl}/${id}`, { method: 'DELETE' });
+
+            if (response.ok) {
+                alert('Poistettu!');
+                fetchItems();
+            } else {
+                alert('Virhe poistossa');
+            }
+        }
+    </script>
+</body>
+</html>
