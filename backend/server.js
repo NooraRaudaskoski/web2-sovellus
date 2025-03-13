@@ -17,15 +17,16 @@ const db = new sqlite3.Database('tietokanta.db', (err) => {
     }
 });
 
-// Luo taulu, jos sitä ei ole
+// Luo items-taulu, jos sitä ei ole vielä olemassa
 db.run(`CREATE TABLE IF NOT EXISTS items (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    name TEXT,
+    description TEXT
 )`, (err) => {
     if (err) {
         console.error('Taulun luontivirhe:', err.message);
+    } else {
+        console.log('items-taulu luotu tai se on jo olemassa.');
     }
 });
 
@@ -67,7 +68,14 @@ app.delete('/items/:id', (req, res) => {
     });
 });
 
+// Oletusreitti (päivittää `localhost:3000` sivun)
+app.get('/', (req, res) => {
+    res.send('Tervetuloa API:in!');
+});
+
 // Käynnistä palvelin
 app.listen(port, () => {
     console.log(`Palvelin käynnistyi portissa ${port}`);
 });
+
+
